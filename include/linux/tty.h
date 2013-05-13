@@ -575,8 +575,7 @@ extern void tty_audit_exit(void);
 extern void tty_audit_fork(struct signal_struct *sig);
 extern void tty_audit_tiocsti(struct tty_struct *tty, char ch);
 extern void tty_audit_push(struct tty_struct *tty);
-extern int tty_audit_push_task(struct task_struct *tsk,
-			       kuid_t loginuid, u32 sessionid);
+extern int tty_audit_push_current(void);
 #else
 static inline void tty_audit_add_data(struct tty_struct *tty,
 		unsigned char *data, size_t size, unsigned icanon)
@@ -594,8 +593,7 @@ static inline void tty_audit_fork(struct signal_struct *sig)
 static inline void tty_audit_push(struct tty_struct *tty)
 {
 }
-static inline int tty_audit_push_task(struct task_struct *tsk,
-				      kuid_t loginuid, u32 sessionid)
+static inline int tty_audit_push_current(void)
 {
 	return 0;
 }
@@ -691,5 +689,12 @@ do {									\
 	finish_wait(&wq, &__wait);					\
 } while (0)
 
+#ifdef CONFIG_PROC_FS
+extern void proc_tty_register_driver(struct tty_driver *);
+extern void proc_tty_unregister_driver(struct tty_driver *);
+#else
+static inline void proc_tty_register_driver(struct tty_driver *d) {}
+static inline void proc_tty_unregister_driver(struct tty_driver *d) {}
+#endif
 
 #endif
